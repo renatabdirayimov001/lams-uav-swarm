@@ -1,5 +1,7 @@
 # LAMS: Lifetime-Aware Mode Selection for UAV Swarms
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23632607.svg)](https://doi.org/10.5281/zenodo.23632607)
+
 MATLAB simulator and results for the paper
 **"Lifetime-Aware Adaptive Switching Between Multi-Hop Forwarding and Store-Carry-Forward in UAV Swarm Networks"** (under review).
 
@@ -59,7 +61,7 @@ python3 analysis/analyze.py results figures
 ```
 
 ## Citation
-If you use this code, please cite the paper (reference will be added after publication).
+If you use this code, please cite the archived version: R. Abdirayimov, *LAMS: Lifetime-Aware Mode Selection for UAV Swarms, Simulator and Results*, Zenodo, v1.1.0, 2026. doi:10.5281/zenodo.23632607. The paper reference will be added after publication.
 
 ## License
 MIT
