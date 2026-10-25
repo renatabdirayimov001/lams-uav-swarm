@@ -36,6 +36,7 @@ P.gapdB  = 3;           % SNR gap of the MCS (dB)
 P.Rmax   = 6e6;         % max PHY rate (bit/s)
 P.M      = 3;           % range margin used for R_eff (dB)
 P.lqAlpha = 0.6;        % EWMA weight of link-quality estimate (HELLO hysteresis)
+P.rateSNR = 'inst';    % airtime SNR: 'inst' (instantaneous) or 'max' (v1.0, optimistic)
 
 % ---------------- traffic ----------------
 P.F      = 10;          % number of flows
@@ -48,7 +49,9 @@ P.dProc  = 0.005;       % per-hop processing delay (s)
 % ---------------- schemes ----------------
 P.T_hold = 2;           % MH: max time without route before drop
 P.snwL   = 8;           % Spray-and-Wait copies (binary)
-P.thTmin = 4;           % TH: fixed lifetime threshold (tuned, see tune_th.m)
+P.thTmin = 0.5;         % TH: fixed lifetime threshold, replaced by the tune_th result below
+f_ = fullfile(fileparts(mfilename('fullpath')), 'results', 'th_best.mat');
+if exist(f_, 'file'), L_ = load(f_); P.thTmin = L_.best; end
 
 % ---------------- LAMS ----------------
 P.H      = 60;          % prediction horizon

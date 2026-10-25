@@ -1,12 +1,13 @@
 function R = run_sim(P, TR, scheme, seed)
 %RUN_SIM  Replay trace TR with one forwarding scheme and return metrics.
-%   scheme: 'LAMS', 'LAMS-noAlt', 'LAMS-noCal', 'TH', 'RC', 'MH', 'EPI', 'SNW'
+%   scheme: 'LAMS', 'LAMS-noAlt', 'LAMS-noCal', 'LAMS-noAlt-noCal',
+%           'TH', 'RC', 'MH', 'EPI', 'SNW'
 %   seed  : seed for scheme-internal randomness (processing order).
 set_seed(seed + 7919);
 N = P.N; T = TR.T; dt = P.dt; S = P.S; H = P.H; Reff = TR.Reff;
 isLams  = strncmp(scheme, 'LAMS', 4);
-useAlt  = ~strcmp(scheme, 'LAMS-noAlt');
-useCal  = ~strcmp(scheme, 'LAMS-noCal');
+useAlt  = ~any(strcmp(scheme, {'LAMS-noAlt','LAMS-noAlt-noCal'}));
+useCal  = ~any(strcmp(scheme, {'LAMS-noCal','LAMS-noAlt-noCal'}));
 multi   = any(strcmp(scheme, {'EPI','SNW'}));
 updEvery = max(1, round(P.T_upd/dt));
 
@@ -160,7 +161,7 @@ for t = 1:T
                     if state(p) ~= 1 || holder(p) ~= i, kk = kk + 1; continue; end
                     action = 3; j = 0; mode = 4;   % 1 tx, 2 stop, 3 next, 4 drop
                     switch scheme
-                        case {'LAMS','LAMS-noAlt','LAMS-noCal'}
+                        case {'LAMS','LAMS-noAlt','LAMS-noCal','LAMS-noAlt-noCal'}
                             if useAlt, ms = 1:3; else, ms = 1; end
                             Jbest = inf; mBest = 0;
                             c_ = cal(i,:);
@@ -247,7 +248,7 @@ for t = 1:T
                         kk = kk + 1; continue;
                     end
                     % ---- transmission attempt i -> j ----
-                    r_ = rate_of(max(iS(i,j), mS(i,j)), P);
+                    r_ = rate_of(air_snr(iS(i,j), mS(i,j), P), P);
                     s_ = S / r_;
                     if air(i) < s_ || air(j) < s_ || (j ~= d && occ(j) >= P.B), break; end
                     air(i) = air(i) - s_; air(j) = air(j) - s_; txData = txData + 1;
@@ -290,7 +291,7 @@ for t = 1:T
                 cand = [cand(toDst) cand(~toDst)];
                 for p = cand
                     if state(p) ~= 1, continue; end
-                    r_ = rate_of(max(iS(i,j), mS(i,j)), P); s_ = S / r_;
+                    r_ = rate_of(air_snr(iS(i,j), mS(i,j), P), P); s_ = S / r_;
                     if air(i) < s_ || air(j) < s_, break; end
                     if pdst(p) ~= j && occ(j) >= P.B, break; end
                     air(i) = air(i) - s_; air(j) = air(j) - s_; txData = txData + 1;
@@ -353,6 +354,18 @@ for s = 1:N
         v = st(end); st(end) = [];
         nb = find(A(v,:) & c == 0); c(nb) = k; st = [st nb]; %#ok<AGROW>
     end
+end
+end
+
+function g = air_snr(iS, mS, P)
+%AIR_SNR  SNR used to compute the airtime of one transmission.
+%   'inst' (default): instantaneous SNR incl. fading (ideal rate adaptation);
+%                     a failed attempt (iS < gammaTh) is charged the airtime
+%                     of the rate chosen from the mean SNR
+%   'max'           : larger of instantaneous and mean SNR (v1.0, optimistic)
+if isfield(P, 'rateSNR') && strcmp(P.rateSNR, 'max'), g = max(iS, mS);
+elseif iS >= P.gammaTh, g = iS;
+else, g = mS;
 end
 end
 
