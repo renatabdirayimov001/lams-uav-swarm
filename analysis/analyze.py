@@ -170,7 +170,7 @@ if "speed" in sweeps:
 # losses at the default point (N = 40 of the N sweep)
 if "N" in sweeps:
     S = sweeps["N"]; v = list(S["vals"]).index(40.0)
-    fig, ax = plt.subplots(figsize=(3.5, 2.1))
+    fig, ax = plt.subplots(figsize=(3.5, 1.8))
     x = np.arange(len(ORDER)); bottom = np.zeros(len(ORDER))
     for m, lab, c in [("dropTTL", "TTL expiry", "#2a78d6"), ("dropBuf", "Source-buffer admission loss", "#eda100"),
                       ("dropNoRoute", "No route (MH)", "#6250d6")]:
